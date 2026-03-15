@@ -16,6 +16,41 @@ class SmartPlayer(Player):
         pass
         
     
+ 
+    def _order_moves(self, board, moves, player):
+        """
+        Ordena movimientos de mejor a peor según heurística rápida.
+        Para MAX: queremos minimizar dijkstra(self) → menor es mejor.
+        Para MIN: queremos minimizar dijkstra(opp)  → menor es mejor para el oponente.
+        """
+        def score(move):
+            r, c = move
+            board.board[r][c] = player               # make temporal
+            # heurística: diferencia de distancias tras el movimiento
+            s = self._eval(board)
+            board.board[r][c] = 0                    # unmake
+            return s
+
+        # MAX quiere score alto, MIN quiere score bajo
+        reverse = (player == self.player_id)
+        return sorted(moves, key=score, reverse=reverse)
+
+    
+    def _get_relevant_moves(self, board):
+        """Solo celdas adyacentes a piezas ya jugadas."""
+        candidates = set()
+        for r in range(board.size):
+            for c in range(board.size):
+                if board.board[r][c] != 0:
+                    for nr, nc in board._get_neighbors(r, c):
+                        if board.board[nr][nc] == 0:
+                            candidates.add((nr, nc))
+        if not candidates:
+            return [(r, c) for r in range(board.size)
+                    for c in range(board.size) if board.board[r][c] == 0]
+        return list(candidates)
+    
+    
     
     def _terminal(self, board):
         return board.check_connection(self.player_id) or \
