@@ -17,6 +17,18 @@ class SmartPlayer(Player):
         
     
     
+    def _terminal(self, board):
+        return board.check_connection(self.player_id) or \
+               board.check_connection(self.opp)
+
+    
+    def _board_hash(self, board):
+        """Hash compacto del estado del tablero."""
+        return tuple(board.board[r][c]
+                     for r in range(board.size)
+                     for c in range(board.size))
+    
+    
     
     def _eval(self, board):
         return self._dijkstra(board, self.opp) - self._dijkstra(board, self.player_id)
