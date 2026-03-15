@@ -46,7 +46,7 @@ class HexBoard:
         return False
     
     def _get_neighbors(self, r, c):
-        """Implementación de adyacencias even-r layout [cite: 18]"""
+        """Implementación de adyacencias even-r layout """
         res = []
         potential = [(r, c-1), (r, c+1)]
         if r % 2 == 0:
