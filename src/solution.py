@@ -16,7 +16,52 @@ class SmartPlayer(Player):
         pass
         
     
- 
+
+    def _max_v(self, board, d, a, b):
+        # ── Transposition Table lookup ───────
+        key = (self._board_hash(board), d, 'max')
+        if key in self.trans_table:
+            return self.trans_table[key]
+
+        if d == self.depth or self._terminal(board):
+            return self._eval(board)
+
+        v = float('-inf')
+        for r, c in self._order_moves(board, self._get_relevant_moves(board), self.player_id):
+            board.board[r][c] = self.player_id           
+            v = max(v, self._min_v(board, d + 1, a, b))
+            board.board[r][c] = 0                        
+            if v >= b:
+                self.trans_table[key] = v
+                return v
+            a = max(a, v)
+
+        self.trans_table[key] = v
+        return v
+
+    def _min_v(self, board, d, a, b):
+        # ── Transposition Table lookup ───────
+        key = (self._board_hash(board), d, 'min')
+        if key in self.trans_table:
+            return self.trans_table[key]
+
+        if d == self.depth or self._terminal(board):
+            return self._eval(board)
+
+        v = float('inf')
+        for r, c in self._order_moves(board, self._get_relevant_moves(board), self.opp):
+            board.board[r][c] = self.opp                 
+            v = min(v, self._max_v(board, d + 1, a, b))
+            board.board[r][c] = 0                        
+            if v <= a:
+                self.trans_table[key] = v
+                return v
+            b = min(b, v)
+
+        self.trans_table[key] = v
+        return v
+    
+    
     def _order_moves(self, board, moves, player):
         """
         Ordena movimientos de mejor a peor según heurística rápida.
@@ -25,10 +70,10 @@ class SmartPlayer(Player):
         """
         def score(move):
             r, c = move
-            board.board[r][c] = player               # make temporal
+            board.board[r][c] = player               
             # heurística: diferencia de distancias tras el movimiento
             s = self._eval(board)
-            board.board[r][c] = 0                    # unmake
+            board.board[r][c] = 0                    
             return s
 
         # MAX quiere score alto, MIN quiere score bajo
