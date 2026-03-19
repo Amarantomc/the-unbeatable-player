@@ -16,7 +16,28 @@ class SmartPlayer(Player):
         pass
         
     
+    def _root_search(self, board, start):
+        best_val = float('-inf')
+        best_move = None
+        alpha, beta = float('-inf'), float('inf')
 
+        # ── Move Ordering en la raíz ─────────
+        moves = self._get_relevant_moves(board)
+        ordered = self._order_moves(board, moves, self.player_id)
+
+        for r, c in ordered:
+            if time.time() - start > 4.0:
+                break
+            board.board[r][c] = self.player_id          
+            val = self._min_v(board, 1, alpha, beta)
+            board.board[r][c] = 0                        
+            if val > best_val:
+                best_val, best_move = val, (r, c)
+            alpha = max(alpha, best_val)
+
+        return best_val, best_move
+    
+    
     def _max_v(self, board, d, a, b):
         # ── Transposition Table lookup ───────
         key = (self._board_hash(board), d, 'max')
