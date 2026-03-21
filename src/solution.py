@@ -13,7 +13,27 @@ class SmartPlayer(Player):
     
     
     def play(self, board: HexBoard) -> tuple:
-        pass
+        actions = [(r, c) for r in range(board.size)
+        for c in range(board.size) if board.board[r][c] == 0]
+        if len(actions) == board.size ** 2:
+            return (board.size // 2, board.size // 2)
+
+        self.trans_table.clear()  # limpia cache entre turnos
+        best_move = actions[0]
+        start = time.time()
+
+        # ── Iterative Deepening ──────────────
+        for depth in range(1, 15):
+            if time.time() - start > 4.0:  # deja 1s de margen
+                break
+            self.depth = depth
+            val, move = self._root_search(board, start)
+            if move:
+                best_move = move
+            if val == float('inf'):  # encontró victoria segura
+                break
+
+        return best_move
         
     
     def _root_search(self, board, start):
