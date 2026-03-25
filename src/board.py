@@ -50,9 +50,9 @@ class HexBoard:
         res = []
         potential = [(r, c-1), (r, c+1)]
         if r % 2 == 0:
-            potential += [(r-1, c), (r-1, c+1), (r+1, c), (r+1, c+1)]
-        else:
             potential += [(r-1, c-1), (r-1, c), (r+1, c-1), (r+1, c)]
+        else:
+            potential += [(r-1, c), (r-1, c+1), (r+1, c), (r+1, c+1)]
         for nr, nc in potential:
             if 0 <= nr < self.size and 0 <= nc < self.size:
                 res.append((nr, nc))
